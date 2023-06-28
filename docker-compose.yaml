@@ -2,7 +2,9 @@ version: '3'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 3000:3000
       - 5555:5555
@@ -12,14 +14,18 @@ services:
       - "host.docker.internal:172.17.0.1"
       
   db:
-    image: bitnami/mongodb:5.0.17
+    build: ./mongodb_replica
+    restart: always
     volumes:
-      - mongodb_data:/bitnami/mongodb
+      - mongodb_data:/mongodb
     environment:
-      MONGODB_ROOT_PASSWORD: root
-      MONGODB_REPLICA_SET_MODE: primary
-      MONGODB_REPLICA_SET_KEY: 123456
-      MONGODB_DATABASE: nest
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: nest
+      MONGO_REPLICA_HOST: host.docker.internal
+      MONGO_REPLICA_PORT: 27017
+    ports:
+      - 27017:27017
 
 volumes:
   mongodb_data:
